@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="is-loading">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>GRIX — We Offer You What You Deserve</title>
 <meta name="description" content="GRIX is a premium clothing brand from Bangladesh. We offer quality, customisation, and fast delivery across 64 districts." />
+<meta name="theme-color" content="#f1ece2" />
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+<!-- Social sharing — replace grix-logo.jpg with an ABSOLUTE URL (https://yourdomain.com/grix-logo.jpg) before going live -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="GRIX" />
+<meta property="og:title" content="GRIX — We Offer You What You Deserve" />
+<meta property="og:description" content="Premium unisex clothing from Dhaka. Custom fits, honest fabric, delivery to all 64 districts." />
+<meta property="og:image" content="grix-logo.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -31,7 +42,6 @@
     --line-2:rgba(14,14,14,.28);
     --paper-line:rgba(14,14,14,.06);
     --ease:cubic-bezier(.22,1,.36,1);
-    --ease-2:cubic-bezier(.65,0,.35,1);
 }
 
 html,body{width:100%;height:100%;overflow:hidden}
@@ -183,6 +193,21 @@ html.is-loading body{
     font-variant-numeric:tabular-nums;
 }
 
+/* ============================================================
+   HOLD HERO CHOREOGRAPHY UNTIL THE PRELOADER LIFTS
+============================================================ */
+html.is-loading .hero-header,
+html.is-loading .kicker,
+html.is-loading .hero-title .line-inner,
+html.is-loading .hero-desc,
+html.is-loading .hero-cta,
+html.is-loading .hero-visual,
+html.is-loading .hero-side,
+html.is-loading .marquee,
+html.is-loading .feat{
+    animation-play-state:paused !important;
+}
+
 @media (prefers-reduced-motion:reduce){
     .preloader{transition:opacity .01s,visibility 0s .01s}
     .preloader-brand span,
@@ -220,6 +245,21 @@ html.is-loading body{
     box-shadow:-50px 0 100px rgba(0,0,0,.35);
 }
 .main-slide.menu-open::after{opacity:.14}
+
+/* ============================================================
+   SCROLL PROGRESS HAIRLINE
+   z-index 2: above the slide, below the panel (3) and overlays
+============================================================ */
+.scroll-progress{
+    position:fixed;
+    top:0;left:0;right:0;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:left center;
+    z-index:2;
+    pointer-events:none;
+}
 
 /* ============================================================
    SCROLL VIEWPORT
@@ -346,7 +386,7 @@ html.is-loading body{
 .hero-nav a:hover::after{transform:scaleX(1);transform-origin:left center}
 
 /* ============================================================
-   HAMBURGER — now sits inside the header, scrolls with page
+   HAMBURGER — sits inside the header, scrolls with page
 ============================================================ */
 .hamburger{
     position:relative;
@@ -361,7 +401,6 @@ html.is-loading body{
     padding:0;
     background:none;
     border:none;
-    outline:none;
     z-index:10;
 }
 .hamburger span{
@@ -378,7 +417,7 @@ html.is-loading body{
 .hamburger span:nth-child(2){width:62%;margin-left:auto}
 .hamburger span:nth-child(3){width:100%}
 .hamburger:hover span:nth-child(2){width:100%}
-.hamburger.active span{background:var(--bone)}
+.hamburger.active span{background:var(--ink)}
 .hamburger.active span:nth-child(1){transform:translateY(6px) rotate(45deg);width:100%}
 .hamburger.active span:nth-child(2){opacity:0;transform:scaleX(0);width:0}
 .hamburger.active span:nth-child(3){transform:translateY(-6px) rotate(-45deg);width:100%}
@@ -531,6 +570,12 @@ html.is-loading body{
     overflow:hidden;
     background:var(--ink);
 }
+/* hatch texture — shows through if the photo fails to load */
+.hero-frame::before{
+    content:'';
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(-45deg,rgba(241,236,226,.05) 0 1px,transparent 1px 14px);
+}
 .hero-frame::after{
     content:'';
     position:absolute;inset:0;
@@ -538,6 +583,7 @@ html.is-loading body{
     transform:translate(10px,10px);
     pointer-events:none;
     transition:transform .5s var(--ease);
+    z-index:2;
 }
 .hero-visual:hover .hero-frame::after{transform:translate(14px,14px)}
 
@@ -550,6 +596,7 @@ html.is-loading body{
     animation:imgZoom 22s ease-in-out infinite alternate;
     will-change:transform;
     transform-origin:center;
+    z-index:1;
 }
 @keyframes imgZoom{from{transform:scale(1)}to{transform:scale(1.08)}}
 
@@ -630,6 +677,10 @@ html.is-loading body{
     padding:0 4px;
 }
 @keyframes marquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+/* pause on hover — real pointers only, no sticky pause on touch */
+@media (hover:hover) and (pointer:fine){
+    .marquee:hover .marquee-track{animation-play-state:paused}
+}
 
 .features{
     display:grid;
@@ -680,6 +731,59 @@ html.is-loading body{
     letter-spacing:.06em;
     color:var(--muted-2);
     line-height:1.5;
+}
+
+/* ============================================================
+   SCROLL REVEAL (added by JS — no-JS users see everything)
+============================================================ */
+.sr{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .75s var(--ease) var(--d,0s),
+               transform .75s var(--ease) var(--d,0s);
+}
+.sr.sr-in{opacity:1;transform:none}
+/* keep the FAQ bg-tint transition alive alongside the reveal */
+.faq-item.sr{
+    transition:opacity .75s var(--ease) var(--d,0s),
+               transform .75s var(--ease) var(--d,0s),
+               background-color .4s var(--ease);
+}
+@media (prefers-reduced-motion:reduce){
+    .sr{opacity:1;transform:none;transition:none}
+}
+
+/* ============================================================
+   BACK TO TOP
+============================================================ */
+.to-top{
+    position:fixed;
+    bottom:26px;right:26px;
+    z-index:2;
+    width:50px;height:50px;
+    background:var(--ink);
+    color:var(--bone);
+    border:none;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    opacity:0;
+    transform:translateY(14px);
+    pointer-events:none;
+    transition:opacity .45s var(--ease),
+               transform .45s var(--ease),
+               background-color .35s var(--ease);
+}
+.to-top.show{opacity:1;transform:none;pointer-events:auto}
+.to-top:hover{background:var(--accent)}
+/* hide while the menu panel or any overlay is up (siblings in DOM) */
+.side-panel.open ~ .to-top,
+.explore-section.open ~ .to-top,
+.about-section.open ~ .to-top,
+.contact-section.open ~ .to-top{
+    opacity:0;
+    transform:translateY(14px);
+    pointer-events:none;
 }
 
 /* ============================================================
@@ -772,6 +876,7 @@ html.is-loading body{
 .faq-item{
     border-bottom:1px solid var(--line);
     transition:background-color .4s var(--ease);
+    scroll-margin:24px 0;
 }
 .faq-item[open]{
     background:var(--bone-2);
@@ -825,6 +930,18 @@ html.is-loading body{
     font-size:15px;
     line-height:1.8;
     color:var(--muted);
+}
+
+/* smooth expand/collapse — progressive enhancement (Chromium 131+) */
+@supports (interpolate-size: allow-keywords){
+    :root{interpolate-size:allow-keywords}
+    .faq-item::details-content{
+        block-size:0;
+        overflow:clip;
+        transition:block-size .5s var(--ease),
+                   content-visibility .5s allow-discrete;
+    }
+    .faq-item[open]::details-content{block-size:auto}
 }
 
 /* ============================================================
@@ -1078,6 +1195,11 @@ html.is-loading body{
 
 /* ============================================================
    FULL-SCREEN SECTIONS (overlays)
+   ── CURTAIN WIPE ──
+   The panel is clipped to a hairline at its bottom edge and
+   wipes upward on open, matching the preloader's lift direction.
+   clip-path is animatable everywhere modern; visibility is
+   deferred so the panel stays out of the a11y tree while hidden.
 ============================================================ */
 .explore-section,
 .about-section,
@@ -1092,18 +1214,23 @@ html.is-loading body{
     background:var(--bone);
     color:var(--ink);
     visibility:hidden;
-    transform:translateY(100%);
-    transition:transform .95s var(--ease),visibility 0s .95s;
-    will-change:transform;
+    /* closed: clipped to nothing, anchored at the bottom edge */
+    clip-path:inset(100% 0 0 0);
+    transition:clip-path 1s var(--ease),
+               visibility 0s 1s;
+    will-change:clip-path;
     -webkit-overflow-scrolling:touch;
 }
 .explore-section.open,
 .about-section.open,
 .contact-section.open{
-    transform:translateY(0);
+    /* open: full reveal */
+    clip-path:inset(0 0 0 0);
     visibility:visible;
-    transition:transform .95s var(--ease),visibility 0s 0s;
+    transition:clip-path 1s var(--ease),
+               visibility 0s 0s;
 }
+
 .explore-section::before,
 .about-section::before,
 .contact-section::before{
@@ -1139,7 +1266,6 @@ html.is-loading body{
     background:transparent;
     border:none;
     cursor:pointer;
-    outline:none;
     padding:0;
     transition:transform .5s var(--ease);
 }
@@ -1558,6 +1684,43 @@ html.is-loading body{
 }
 .contact-option:hover .arrow{color:var(--accent);transform:translateX(6px)}
 
+/* copy-to-clipboard row */
+.copy-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-top:26px;
+    padding-top:20px;
+    border-top:1px dashed var(--line-2);
+}
+.copy-lbl{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:10px;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    color:var(--muted);
+}
+.copy-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 20px;
+    background:transparent;
+    border:1px solid var(--ink);
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background-color .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease);
+}
+.copy-btn:hover{background:var(--ink);color:var(--bone)}
+.copy-btn.copied{border-color:var(--accent);color:var(--accent);background:transparent}
+
 .contact-foot{
     margin-top:56px;
     display:grid;
@@ -1587,13 +1750,15 @@ html.is-loading body{
 }
 
 /* ============================================================
-   KEYFRAMES
+   KEYFRAMES + KEYBOARD FOCUS
 ============================================================ */
 @keyframes rise{to{opacity:1;transform:translateY(0)}}
 @keyframes riseDown{
     from{opacity:0;transform:translateY(-16px)}
     to  {opacity:1;transform:translateY(0)}
 }
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 /* ============================================================
    RESPONSIVE
@@ -1628,7 +1793,6 @@ html.is-loading body{
     .hero-nav{display:none}
     .logo{font-size:22px}
 
-    /* Hamburger still sits inside header — just scale it down */
     .hamburger{width:32px;height:12px;margin-left:0}
     .hamburger.active span:nth-child(1){transform:translateY(5px) rotate(45deg)}
     .hamburger.active span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
@@ -1649,9 +1813,10 @@ html.is-loading body{
         overflow-x:auto;
         -webkit-overflow-scrolling:touch;
         scrollbar-width:none;
+        scroll-snap-type:x mandatory;
     }
     .features::-webkit-scrollbar{display:none}
-    .feat{padding:18px 16px}
+    .feat{padding:18px 16px;scroll-snap-align:start}
 
     .marquee{padding:14px 0}
     .marquee-track span{padding:0 18px}
@@ -1685,6 +1850,8 @@ html.is-loading body{
     .support-box{grid-template-columns:1fr;padding:28px 24px;gap:20px}
     .support-box .link{justify-content:center}
     .about-side{padding-left:20px}
+
+    .to-top{bottom:18px;right:18px;width:44px;height:44px}
 }
 @media (max-width:520px){
     .hero-title{font-size:clamp(38px,10vw,56px)}
@@ -1713,6 +1880,14 @@ html.is-loading body{
 </style>
 </head>
 <body>
+
+<!-- No-JS fallback: skip the preloader and let hero animations run -->
+<noscript>
+    <style>
+        .preloader{display:none}
+        html.is-loading *{animation-play-state:running !important}
+    </style>
+</noscript>
 
 <!-- ══════════ PRELOADER ══════════ -->
 <div class="preloader" id="preloader" role="status" aria-label="Loading GRIX">
@@ -1744,12 +1919,12 @@ html.is-loading body{
                 <header class="hero-header">
                     <div class="logo">GRIX</div>
                     <div class="hero-meta">Dhaka · Bangladesh · Est. 2026</div>
-                    <nav class="hero-nav" role="navigation" aria-label="Main navigation">
+                    <nav class="hero-nav" aria-label="Main navigation">
                         <a href="#" class="contact-link" role="button">Contact</a>
                         <a href="#" class="about-link" role="button">About</a>
                     </nav>
-                    <!-- ✅ Hamburger now inside the header — scrolls with the page -->
-                    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                    <button class="hamburger" id="hamburger" type="button"
+                            aria-label="Toggle menu" aria-expanded="false" aria-controls="sidePanel">
                         <span></span><span></span><span></span>
                     </button>
                 </header>
@@ -1759,7 +1934,7 @@ html.is-loading body{
                         <div class="kicker">
                             <span class="dash"></span>
                             <span class="num">01</span>
-                            <span>Collection / SS26</span>
+                            <span>Find us</span>
                         </div>
 
                         <h1 class="hero-title">
@@ -1774,7 +1949,7 @@ html.is-loading body{
                         </p>
 
                         <div class="hero-cta">
-                            <button class="btn-primary">
+                            <button class="btn-primary" type="button">
                                 <span>Explore us</span>
                                 <i class="fas fa-arrow-right"></i>
                             </button>
@@ -1784,7 +1959,8 @@ html.is-loading body{
 
                     <div class="hero-visual">
                         <div class="hero-frame">
-                            <img src="grix-logo.jpg" alt="GRIX Lookbook" class="hero-img" />
+                            <img src="grix-logo.jpg" alt="GRIX Lookbook" class="hero-img"
+                                 onerror="this.onerror=null;this.style.display='none'" />
                             <div class="frame-label">
                                 <span class="l">Trust us first.<br>We never break it.</span>
                                 <span class="r">Fig. 01 — GRIX</span>
@@ -1854,16 +2030,16 @@ html.is-loading body{
                                 <span class="num">02</span>
                                 <span>Info / FAQ</span>
                             </div>
-                            <h2 class="section-title">Common <em>questions.</em></h2>
+                            <h2 class="section-title">Have <em>questions!</em></h2>
                         </div>
                         <div class="section-meta">
                             <span>Answers in one place</span>
-                            <span>Still stuck? Write us.</span>
+                            <span>Still stuck? Knock us.</span>
                         </div>
                     </div>
 
                     <div class="faq-list">
-                        <details class="faq-item" open>
+                        <details class="faq-item" id="faq-delivery" open>
                             <summary>
                                 <span class="faq-q">How long does delivery take?</span>
                                 <span class="faq-icon"></span>
@@ -1873,7 +2049,7 @@ html.is-loading body{
                             </div>
                         </details>
 
-                        <details class="faq-item">
+                        <details class="faq-item" id="faq-custom">
                             <summary>
                                 <span class="faq-q">Do you offer customisation?</span>
                                 <span class="faq-icon"></span>
@@ -1883,7 +2059,7 @@ html.is-loading body{
                             </div>
                         </details>
 
-                        <details class="faq-item">
+                        <details class="faq-item" id="faq-returns">
                             <summary>
                                 <span class="faq-q">What's your return policy?</span>
                                 <span class="faq-icon"></span>
@@ -1893,7 +2069,7 @@ html.is-loading body{
                             </div>
                         </details>
 
-                        <details class="faq-item">
+                        <details class="faq-item" id="faq-unisex">
                             <summary>
                                 <span class="faq-q">Are your pieces unisex?</span>
                                 <span class="faq-icon"></span>
@@ -1903,17 +2079,17 @@ html.is-loading body{
                             </div>
                         </details>
 
-                        <details class="faq-item">
+                        <details class="faq-item" id="faq-payment">
                             <summary>
                                 <span class="faq-q">How do I pay?</span>
                                 <span class="faq-icon"></span>
                             </summary>
                             <div class="faq-a">
-                                We accept bKash, Nagad, and cash on delivery inside Bangladesh. For international orders, reach out on WhatsApp and we'll arrange a payment method that works for you.
+                                We accept bKash, Nagad, and cash on delivery also we will arrange a payment method that works for you.
                             </div>
                         </details>
 
-                        <details class="faq-item">
+                        <details class="faq-item" id="faq-location">
                             <summary>
                                 <span class="faq-q">Where are you based?</span>
                                 <span class="faq-icon"></span>
@@ -1939,8 +2115,8 @@ html.is-loading body{
                         <div class="footer-col-title">Help</div>
                         <ul>
                             <li><a href="#faq">FAQ</a></li>
-                            <li><a href="#faq">Shipping</a></li>
-                            <li><a href="#faq">Returns</a></li>
+                            <li><a href="#faq-delivery">Shipping</a></li>
+                            <li><a href="#faq-returns">Returns</a></li>
                             <li><a href="mailto:natsu7138@gmail.com?subject=Support%20Request%20%E2%80%94%20GRIX&body=Hi%20GRIX%20team%2C%0A%0AI%27d%20like%20some%20help%20with%3A%0A%0A">Contact</a></li>
                         </ul>
                     </div>
@@ -1949,7 +2125,7 @@ html.is-loading body{
                         <div class="footer-col-title">Follow</div>
                         <ul>
                             <li><a href="https://www.facebook.com/share/1JtHwHtCFo/" target="_blank" rel="noopener">Facebook</a></li>
-                            <li><a href="https://www.instagram.com/throw_bangladesh?igsi=YjlocWMybmV3bGx3" target="_blank" rel="noopener">Instagram</a></li>
+                            <li><a href="https://www.instagram.com/throw_bangladesh" target="_blank" rel="noopener">Instagram</a></li>
                             <li><a href="https://youtube.com/@amd.aryan7138" target="_blank" rel="noopener">YouTube</a></li>
                             <li><a href="https://wa.me/message/ODOHW3DG36WJM1" target="_blank" rel="noopener">WhatsApp</a></li>
                         </ul>
@@ -1971,11 +2147,14 @@ html.is-loading body{
         </div><!-- /scroll-viewport -->
     </div><!-- /main-slide -->
 
+    <!-- scroll progress hairline (sits under panel & overlays) -->
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
     <!-- ══════════ SIDE PANEL ══════════ -->
     <aside class="side-panel" id="sidePanel" aria-label="Menu">
         <div class="panel-top">
-            <span class="panel-label">Index</span>
-            <span class="panel-label">№ 00 / Menu</span>
+            <span class="panel-label">GRIX</span>
+            <span class="panel-label">We offer you what you deserve</span>
         </div>
 
         <nav class="panel-nav">
@@ -2009,14 +2188,14 @@ html.is-loading body{
     </aside>
 
     <!-- ══════════ EXPLORE OVERLAY ══════════ -->
-    <section class="explore-section" id="exploreSection" aria-label="Explore us">
+    <section class="explore-section" id="exploreSection" role="dialog" aria-modal="true" aria-label="Explore us">
         <header class="section-header">
             <div class="logo">GRIX</div>
-            <nav class="hero-nav">
+            <nav class="hero-nav" aria-label="Explore section navigation">
                 <a href="#" class="contact-link">Contact</a>
                 <a href="#" class="about-link">About</a>
             </nav>
-            <button class="close-btn" id="exploreClose" aria-label="Close explore">
+            <button class="close-btn" id="exploreClose" type="button" aria-label="Close explore">
                 <span></span><span></span>
             </button>
         </header>
@@ -2028,9 +2207,9 @@ html.is-loading body{
                     <h1 class="ed-title">Find <em>us.</em></h1>
                 </div>
                 <div class="ed-meta">
-                    <span>№ 01 / Channels</span>
-                    <span>Follow / Subscribe</span>
-                    <span>@grix_bangladesh</span>
+                    <span>FOLLOW / SUBSCRIBE</span>
+                    <span>Our</span>
+                    <span>GRIX</span>
                 </div>
             </div>
 
@@ -2048,7 +2227,7 @@ html.is-loading body{
                     <span class="arrow">Visit <i class="fas fa-arrow-right"></i></span>
                 </a>
 
-                <a href="https://www.instagram.com/throw_bangladesh?igsi=YjlocWMybmV3bGx3" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.instagram.com/throw_bangladesh" target="_blank" rel="noopener noreferrer"
                    class="social-item rv" style="--d:.4s">
                     <span class="idx">02</span>
                     <div class="body">
@@ -2056,7 +2235,7 @@ html.is-loading body{
                             <span class="ico"><i class="fab fa-instagram"></i></span>
                             Instagram
                         </span>
-                        <span class="desc">Follow our feed <span class="handle">@grix_bangladesh</span></span>
+                        <span class="desc">Follow our feed <span class="handle">@throw_bangladesh</span></span>
                     </div>
                     <span class="arrow">Visit <i class="fas fa-arrow-right"></i></span>
                 </a>
@@ -2069,7 +2248,7 @@ html.is-loading body{
                             <span class="ico"><i class="fab fa-youtube"></i></span>
                             YouTube
                         </span>
-                        <span class="desc">Subscribe to our channel <span class="handle">GRIX Official</span></span>
+                        <span class="desc">Subscribe to our channel <span class="handle">@amd.aryan7138</span></span>
                     </div>
                     <span class="arrow">Visit <i class="fas fa-arrow-right"></i></span>
                 </a>
@@ -2088,14 +2267,14 @@ html.is-loading body{
     </section>
 
     <!-- ══════════ ABOUT OVERLAY ══════════ -->
-    <section class="about-section" id="aboutSection" aria-label="About us">
+    <section class="about-section" id="aboutSection" role="dialog" aria-modal="true" aria-label="About us">
         <header class="section-header">
             <div class="logo">GRIX</div>
-            <nav class="hero-nav">
+            <nav class="hero-nav" aria-label="About section navigation">
                 <a href="#" class="contact-link">Contact</a>
                 <a href="#" class="about-link">About</a>
             </nav>
-            <button class="close-btn" id="aboutClose" aria-label="Close about">
+            <button class="close-btn" id="aboutClose" type="button" aria-label="Close about">
                 <span></span><span></span>
             </button>
         </header>
@@ -2143,32 +2322,32 @@ html.is-loading body{
             <div class="stats-grid rv" style="--d:.5s">
                 <div class="stat-card">
                     <div class="stat-idx">001 — Atelier</div>
-                    <div class="stat-num"><span data-count="500">0</span><em>+</em></div>
+                    <div class="stat-num"><span data-count="100">0</span><em>+</em></div>
                     <div class="stat-label">Products</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-idx">002 — Community</div>
-                    <div class="stat-num"><span data-count="10">0</span><em>K+</em></div>
+                    <div class="stat-num"><span data-count="2">0</span><em>K+</em></div>
                     <div class="stat-label">Clients</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-idx">003 — Global</div>
-                    <div class="stat-num"><span data-count="50">0</span><em>+</em></div>
-                    <div class="stat-label">Countries</div>
+                    <div class="stat-idx">003 — BANGLADESH</div>
+                    <div class="stat-num"><span data-count="62">0</span><em></em></div>
+                    <div class="stat-label">DISTRICT</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ══════════ CONTACT OVERLAY ══════════ -->
-    <section class="contact-section" id="contactSection" aria-label="Contact us">
+    <section class="contact-section" id="contactSection" role="dialog" aria-modal="true" aria-label="Contact us">
         <header class="section-header">
             <div class="logo">GRIX</div>
-            <nav class="hero-nav">
+            <nav class="hero-nav" aria-label="Contact section navigation">
                 <a href="#" class="contact-link">Contact</a>
                 <a href="#" class="about-link">About</a>
             </nav>
-            <button class="close-btn" id="contactClose" aria-label="Close contact">
+            <button class="close-btn" id="contactClose" type="button" aria-label="Close contact">
                 <span></span><span></span>
             </button>
         </header>
@@ -2180,7 +2359,7 @@ html.is-loading body{
                     <h1 class="ed-title">Let's <em>talk.</em></h1>
                 </div>
                 <div class="ed-meta">
-                    <span>№ 03 / Direct</span>
+                    <span>GRIX</span>
                     <span>Reply within 24h</span>
                     <span>Open 7 days</span>
                 </div>
@@ -2195,7 +2374,7 @@ html.is-loading body{
                             <span class="ico"><i class="fab fa-whatsapp"></i></span>
                             WhatsApp
                         </span>
-                        <span class="desc">Chat with us instantly <span class="handle">@grix.official</span></span>
+                        <span class="desc">Chat with us instantly — fastest reply</span>
                     </div>
                     <span class="arrow">Message <i class="fas fa-arrow-right"></i></span>
                 </a>
@@ -2213,7 +2392,15 @@ html.is-loading body{
                 </a>
             </div>
 
-            <div class="contact-foot rv" style="--d:.6s">
+            <div class="copy-row rv" style="--d:.55s">
+                <span class="copy-lbl">— Prefer to paste it later?</span>
+                <button class="copy-btn" id="copyEmailBtn" type="button">
+                    <span id="copyEmailTxt">Copy our email</span>
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+
+            <div class="contact-foot rv" style="--d:.65s">
                 <div class="cell">
                     <span class="lbl">Studio</span>
                     <span class="val">Dhaka, Bangladesh</span>
@@ -2225,6 +2412,11 @@ html.is-loading body{
             </div>
         </div>
     </section>
+
+    <!-- ══════════ BACK TO TOP ══════════ -->
+    <button class="to-top" id="toTop" type="button" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
 </div>
 
@@ -2248,8 +2440,6 @@ html.is-loading body{
     let fontsReady = false;
     let hidden     = false;
     let progress   = 0;
-
-    document.documentElement.classList.add('is-loading');
 
     function setProgress(p){
         progress = Math.max(progress, Math.min(p, 100));
@@ -2349,6 +2539,9 @@ html.is-loading body{
 const hamburger      = document.getElementById('hamburger');
 const mainSlide      = document.getElementById('mainSlide');
 const sidePanel      = document.getElementById('sidePanel');
+const scrollViewport = document.querySelector('.scroll-viewport');
+const progressBar    = document.getElementById('scrollProgress');
+const toTopBtn       = document.getElementById('toTop');
 const exploreBtn     = document.querySelector('.btn-primary');
 const exploreSection = document.getElementById('exploreSection');
 const exploreClose   = document.getElementById('exploreClose');
@@ -2360,23 +2553,27 @@ const contactSection = document.getElementById('contactSection');
 const contactClose   = document.getElementById('contactClose');
 const panelExplore   = document.querySelector('.panel-explore');
 
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /* ============================================================
    STATE
 ============================================================ */
 let currentSlide = 'home';
 let isNavigating = false;
+let lastFocused  = null;
 
 history.replaceState({ slide: 'home' }, '', '');
 
 /* ============================================================
    HELPERS
 ============================================================ */
-function updateHamburgerColor() {
-    hamburger.style.setProperty('--hamburger-color', '#0e0e0e');
-}
-
 function updateAriaExpanded(expanded) {
     hamburger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+}
+
+function setBackdropInert(on) {
+    mainSlide.inert = on;
+    sidePanel.inert = on;
 }
 
 function closeAllSlides() {
@@ -2386,7 +2583,12 @@ function closeAllSlides() {
     hamburger.classList.remove('active');
     mainSlide.classList.remove('menu-open');
     sidePanel.classList.remove('open');
+    setBackdropInert(false);
     updateAriaExpanded(false);
+    if (lastFocused && lastFocused.isConnected) {
+        lastFocused.focus({ preventScroll: true });
+    }
+    lastFocused = null;
 }
 
 const statNumbers = document.querySelectorAll('.stat-num span[data-count]');
@@ -2407,16 +2609,29 @@ function animateStats() {
 
 function openSlideVisual(slideName) {
     closeAllSlides();
-    switch (slideName) {
-        case 'explore': exploreSection.classList.add('open'); break;
-        case 'about':   aboutSection.classList.add('open');   break;
-        case 'contact': contactSection.classList.add('open'); break;
-    }
-    updateAriaExpanded(false);
+    lastFocused = document.activeElement;
+
+    const targets = {
+        explore: exploreSection,
+        about:   aboutSection,
+        contact: contactSection
+    };
+    const target = targets[slideName];
+    if (!target) return;
+
+    target.classList.add('open');
+    target.scrollTop = 0;
+    setBackdropInert(true);
+
     if (slideName === 'about') {
         statNumbers.forEach(el => { el.textContent = '0'; });
         setTimeout(animateStats, 520);
     }
+
+    setTimeout(() => {
+        const btn = target.querySelector('.close-btn');
+        if (btn) btn.focus({ preventScroll: true });
+    }, 620);
 }
 
 function openSlide(slideName) {
@@ -2424,7 +2639,6 @@ function openSlide(slideName) {
     history.pushState({ slide: slideName }, '', '');
     openSlideVisual(slideName);
     currentSlide = slideName;
-    updateHamburgerColor();
 }
 
 function closeSlide() {
@@ -2437,10 +2651,124 @@ function closeSlide() {
     } else {
         currentSlide = 'home';
         history.replaceState({ slide: 'home' }, '', '');
-        updateHamburgerColor();
         isNavigating = false;
     }
 }
+
+/* ============================================================
+   SCROLL: progress hairline + back-to-top
+============================================================ */
+(function(){
+    if (!scrollViewport) return;
+
+    let ticking = false;
+    function update(){
+        const max = scrollViewport.scrollHeight - scrollViewport.clientHeight;
+        const p = max > 0 ? scrollViewport.scrollTop / max : 0;
+        if (progressBar) progressBar.style.transform = 'scaleX(' + p + ')';
+        if (toTopBtn) {
+            toTopBtn.classList.toggle('show', scrollViewport.scrollTop > window.innerHeight * 0.75);
+        }
+        ticking = false;
+    }
+
+    scrollViewport.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(update);
+    }, { passive: true });
+    update();
+
+    if (toTopBtn) {
+        toTopBtn.addEventListener('click', () => {
+            scrollViewport.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+        });
+    }
+})();
+
+/* ============================================================
+   SCROLL REVEAL — below-the-fold sections fade up once
+============================================================ */
+(function(){
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+
+    const revealEls = [
+        document.querySelector('#faq .section-head'),
+        ...document.querySelectorAll('.faq-item'),
+        document.querySelector('.footer-brand'),
+        ...document.querySelectorAll('.footer-col'),
+        document.querySelector('.footer-bottom')
+    ].filter(Boolean);
+
+    if (!revealEls.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => {
+            if (en.isIntersecting) {
+                en.target.classList.add('sr-in');
+                io.unobserve(en.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+
+    revealEls.forEach((el, i) => {
+        el.style.setProperty('--d', Math.min(i * 0.06, 0.4).toFixed(2) + 's');
+        el.classList.add('sr');
+        io.observe(el);
+    });
+})();
+
+/* ============================================================
+   FAQ DEEP LINKS — #faq-delivery / #faq-returns etc.
+============================================================ */
+function handleHash(){
+    const id = location.hash.slice(1);
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el && el.tagName === 'DETAILS') {
+        el.open = true;
+        requestAnimationFrame(() => {
+            el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        });
+    }
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+
+/* ============================================================
+   COPY EMAIL
+============================================================ */
+(function(){
+    const btn = document.getElementById('copyEmailBtn');
+    if (!btn) return;
+    const EMAIL = 'natsu7138@gmail.com';
+    const txt = document.getElementById('copyEmailTxt');
+    let t;
+
+    btn.addEventListener('click', async () => {
+        let ok = false;
+        try {
+            await navigator.clipboard.writeText(EMAIL);
+            ok = true;
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = EMAIL;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { ok = document.execCommand('copy'); } catch (_) {}
+            ta.remove();
+        }
+        btn.classList.add('copied');
+        txt.textContent = ok ? 'Copied ✓' : EMAIL;
+        clearTimeout(t);
+        t = setTimeout(() => {
+            btn.classList.remove('copied');
+            txt.textContent = 'Copy our email';
+        }, 1800);
+    });
+})();
 
 /* ============================================================
    HISTORY
@@ -2455,14 +2783,15 @@ window.addEventListener('popstate', (e) => {
         openSlideVisual(state.slide);
         currentSlide = state.slide;
     }
-    updateHamburgerColor();
     isNavigating = false;
 });
 
 /* ============================================================
    EVENTS
 ============================================================ */
-hamburger.addEventListener('click', () => {
+hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+
     const anyOpen = exploreSection.classList.contains('open') ||
                     aboutSection.classList.contains('open') ||
                     contactSection.classList.contains('open');
@@ -2473,8 +2802,19 @@ hamburger.addEventListener('click', () => {
         mainSlide.classList.toggle('menu-open');
         sidePanel.classList.toggle('open');
         updateAriaExpanded(hamburger.classList.contains('active'));
-        updateHamburgerColor();
     }
+});
+
+mainSlide.addEventListener('click', () => {
+    if (sidePanel.classList.contains('open') && currentSlide === 'home') {
+        hamburger.click();
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (currentSlide !== 'home') { closeSlide(); return; }
+    if (hamburger.classList.contains('active')) hamburger.click();
 });
 
 exploreBtn.addEventListener('click', () => openSlide('explore'));
@@ -2496,11 +2836,6 @@ contactLinks.forEach(link => {
     link.addEventListener('click', (e) => { e.preventDefault(); openSlide('contact'); });
 });
 contactClose.addEventListener('click', () => closeSlide());
-
-/* ============================================================
-   INIT
-============================================================ */
-updateHamburgerColor();
 </script>
 </body>
-</html> 
+   </html>
